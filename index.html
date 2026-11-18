@@ -52,9 +52,24 @@
     <p class="sub">Tirage fait ! Envoie à chacun son lien <b>privé</b>.<br>Ne regarde pas les résultats, garde la surprise 😉</p>
     <div class="card" id="links"></div>
     <div class="card">
+      <button class="big" id="phone" style="margin-top:0">📱 Mode « on se passe le téléphone »</button>
+      <small>Chacun découvre son résultat à tour de rôle, sur cet écran.</small>
+    </div>
+    <div class="card">
       <button class="secondary" id="copyall" style="width:100%">Copier tous les messages (à découper)</button>
       <button class="secondary" id="back" style="width:100%;margin-top:8px">↩ Recommencer</button>
     </div>
+  </div>
+
+  <!-- Mode téléphone qui passe -->
+  <div id="pass" class="hidden card reveal">
+    <div class="gift">📱</div>
+    <h2 id="passTitle"></h2>
+    <p class="sub" id="passSub"></p>
+    <button id="passShow">Oui, c'est moi</button>
+    <div id="passTarget" class="target hidden"></div>
+    <button id="passNext" class="hidden">Cacher et passer au suivant →</button>
+    <p><small id="passCount"></small></p>
   </div>
 
   <!-- Vue participant -->
@@ -167,7 +182,41 @@ const decode = s => JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g, "+
 const baseUrl = () => location.href.split("#")[0];
 
 let messages = [];
+let lastDraw = null, passIndex = 0;
+
+function showPass() {
+  const { list, perm } = lastDraw;
+  $("results").classList.add("hidden");
+  $("pass").classList.remove("hidden");
+  $("passTarget").classList.add("hidden");
+  $("passNext").classList.add("hidden");
+  if (passIndex >= list.length) {
+    $("passTitle").textContent = "C'est fini ! 🎄";
+    $("passSub").textContent = "Tout le monde a son résultat. Joyeux Noël !";
+    $("passShow").classList.add("hidden");
+    $("passCount").textContent = "";
+    return;
+  }
+  $("passShow").classList.remove("hidden");
+  $("passTitle").textContent = "Au tour de " + list[passIndex].name;
+  $("passSub").textContent = "Les autres, ne regardez pas !";
+  $("passShow").textContent = "Oui, c'est moi (" + list[passIndex].name + ")";
+  $("passCount").textContent = (passIndex + 1) + " / " + list.length;
+}
+$("phone").onclick = () => { passIndex = 0; showPass(); };
+$("passShow").onclick = () => {
+  const { list, perm } = lastDraw;
+  $("passShow").classList.add("hidden");
+  $("passSub").textContent = "Tu offres un cadeau à :";
+  $("passTarget").textContent = "🎁 " + list[perm[passIndex]].name;
+  $("passTarget").classList.remove("hidden");
+  $("passNext").classList.remove("hidden");
+  $("passNext").textContent = passIndex === list.length - 1 ? "Terminer" : "Cacher et passer au suivant →";
+};
+$("passNext").onclick = () => { passIndex++; showPass(); };
+
 function showLinks(list, perm) {
+  lastDraw = { list, perm };
   $("setup").classList.add("hidden");
   $("results").classList.remove("hidden");
   const box = $("links"); box.innerHTML = ""; messages = [];
