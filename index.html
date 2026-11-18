@@ -69,6 +69,7 @@
     <button id="passShow">Oui, c'est moi</button>
     <div id="passTarget" class="target hidden"></div>
     <button id="passNext" class="hidden">Cacher et passer au suivant →</button>
+    <button id="passRestart" class="secondary hidden">🔄 Recommencer un tirage</button>
     <p><small id="passCount"></small></p>
   </div>
 
@@ -190,7 +191,9 @@ function showPass() {
   $("pass").classList.remove("hidden");
   $("passTarget").classList.add("hidden");
   $("passNext").classList.add("hidden");
+  $("passRestart").classList.add("hidden");
   if (passIndex >= list.length) {
+    $("passRestart").classList.remove("hidden");
     $("passTitle").textContent = "C'est fini ! 🎄";
     $("passSub").textContent = "Tout le monde a son résultat. Joyeux Noël !";
     $("passShow").classList.add("hidden");
@@ -214,6 +217,11 @@ $("passShow").onclick = () => {
   $("passNext").textContent = passIndex === list.length - 1 ? "Terminer" : "Cacher et passer au suivant →";
 };
 $("passNext").onclick = () => { passIndex++; showPass(); };
+$("passRestart").onclick = () => {
+  lastDraw = null; passIndex = 0;
+  $("pass").classList.add("hidden");
+  $("setup").classList.remove("hidden");
+};
 
 function showLinks(list, perm) {
   lastDraw = { list, perm };
